@@ -1,10 +1,15 @@
+
+
+
 package coverage
 
 import (
 	"os"
-	"reflect"
-	"testing"
 	"time"
+
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // DO NOT EDIT THIS FUNCTION
@@ -20,346 +25,199 @@ func init() {
 }
 
 // WRITE YOUR CODE BELOW
-func PeopleMock() People {
-	return People{
-		Person{
-			firstName: "Greg",
-			lastName: "Popovich",
-			birthDay: time.Time{},
-		},
-		{
-			firstName: "Allen",
-			lastName: "Iverson",
-			birthDay: time.Time{},
-		},
-		{
-			firstName: "Kevin",
-			lastName: "Garnett",
-			birthDay: time.Time{},
-		},
-	}
-}
-
 
 func TestPeopleLen(t *testing.T) {
-	data := map[string]struct {
-		Mock People
-		Want int
-	}{
-		"success": {
-			Mock: PeopleMock(),
-			Want: 3,
-		},
+	t.Parallel()
+
+	tData := map[string]People{
+		"empty": make(People, 0),
+		"ten": make(People, 10),
+		"nil": nil,
 	}
 
-	for testName, testCase := range data {
-		i := testName 
-		v := testCase
-		t.Run(i, func(t *testing.T) {
-			got := v.Mock.Len()
-			if got != v.Want {
-				t.Errorf("got %v, want %v", got, v.Want)
-			}
-		})
-	}
-	}
-
-	func TestPeopleLess(t *testing.T) {
-		tests := map[string]struct {
-			Name string
-			P    People
-			I    int
-			J    int
-			Want bool
-		}{
-			"success": {
-				Name: "Success people less",
-				P: People{
-					Person{
-						firstName: "Ivan",
-						lastName:  "Ivanov",
-						birthDay:  time.Time{},
-					},
-					{
-						firstName: "Oleg",
-						lastName:  "Olegov",
-						birthDay:  time.Time{},
-					},
-					{
-						firstName: "Leha",
-						lastName:  "Lehov",
-						birthDay:  time.Time{},
-					},
-					{
-						firstName: "Anna",
-						lastName:  "Annova",
-						birthDay:  time.Time{},
-					},
-					{
-						firstName: "Zheny",
-						lastName:  "Zhenev",
-						birthDay:  time.Time{},
-					}},
-				I:    2,
-				J:    1,
-				Want: true,
-			},
-			"success 1": {
-				Name: "Success equal birth day and firstname peoples",
-				P: People{
-					Person{
-						firstName: "Ivan",
-						lastName:  "Ivanov",
-						birthDay:  time.Date(2000, time.April, 10, 0, 0, 0, 0, time.UTC),
-					},
-					{
-						firstName: "Ivan",
-						lastName:  "Olegov",
-						birthDay:  time.Date(2000, time.April, 10, 0, 0, 0, 0, time.UTC),
-					}},
-				I:    0,
-				J:    1,
-				Want: true,
-			},
-			"success 2": {
-				Name: "Success not equal birth day peoples",
-				P: People{
-					Person{
-						firstName: "Ivan",
-						lastName:  "Ivanov",
-						birthDay:  time.Date(2010, time.December, 20, 0, 0, 0, 0, time.UTC),
-					},
-					{
-						firstName: "Ivan",
-						lastName:  "Olegov",
-						birthDay:  time.Date(2000, time.April, 10, 0, 0, 0, 0, time.UTC),
-					}},
-				I:    0,
-				J:    1,
-				Want: true,
-			},
-			"error": {
-				Name: "Error people less",
-				P: People{
-					Person{
-						firstName: "Ivan",
-						lastName:  "Ivanov",
-						birthDay:  time.Time{},
-					},
-					{
-						firstName: "Oleg",
-						lastName:  "Olegov",
-						birthDay:  time.Time{},
-					},
-					{
-						firstName: "Leha",
-						lastName:  "Lehov",
-						birthDay:  time.Time{},
-					},
-					{
-						firstName: "Anna",
-						lastName:  "Annova",
-						birthDay:  time.Time{},
-					},
-					{
-						firstName: "Zheny",
-						lastName:  "Zhenev",
-						birthDay:  time.Time{},
-					}},
-				I:    2,
-				J:    3,
-				Want: false,
-			},
-		}
-		for _, item := range tests {
-			t.Run(item.Name, func(t *testing.T) {
-				if got := item.P.Less(item.I, item.J); got != item.Want {
-					t.Errorf("Less() = %v, want %v", got, item.Want)
-				}
-			})
-		}
-	}
-
-func TestSwap(t *testing.T) {
-	tData := map[string]struct{
-		I int
-		J int
-		people People
-		//Expected People
-	}{
-		"succes": {I: 0, J: 1,people: PeopleMock()},
-	}
-	for i, v := range tData {
-		t.Run(i, func(t *testing.T) {
-			iVal := v.people[v.I]
-			jVal := v.people[v.J]
-			v.people.Swap(v.I,v.J)
-			if v.people[v.I] != jVal || v.people[v.J] != iVal {
-				t.Errorf("want: %v got: %v", iVal, v.people[v.J])
-			} 
+	for name, v := range tData {
+		people := v
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, people.Len(), len(people))
 		})
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+func TestPeopleLess(t *testing.T) {
+	t.Parallel()
 
-func TestNewMatrix(t *testing.T) {
-	data := map[string]struct {
-		str string
-		Expect *Matrix 
-		ExpectedError bool
-		}{
-			"success": {
-				str: "123\n456\n789",
-				Expect: &Matrix{
-					rows: 3,
-					cols: 1,
-					data: []int{123, 456, 789},
-				},
-			ExpectedError: false,
-			},
-			"error": {
-				str: "got\nerr",
-				Expect: nil,
-				ExpectedError: true,
-			},
-			"error with wrong Matrix": {
-				str: "1 2 3\n4 5 ",
-				Expect: nil,
-				ExpectedError: true,
-			},
+	people := People{
+		Person{firstName: "Alica", lastName: "Sligo", birthDay: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)},
+		Person{firstName: "Sienna", lastName: "Wiedermann", birthDay: time.Date(2000, 2, 1, 0, 0, 0, 0, time.UTC)},
+		Person{firstName: "Lucy", lastName: "Bevan", birthDay: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)},
+		Person{firstName: "Lucy", lastName: "Davies", birthDay: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)}};
+
+	tData := map[string]struct{
+		people People
+		i int
+		j int
+		expected bool
+	}{
+		"older": {people, 0, 1, false},
+		"younger": {people, 1, 0, true},
+		"same birthday, first name wins": {people, 0, 2, true},
+		"same birthday, first name loses": {people, 2, 0, false},
+		"same birthday and first name, last name wins": {people, 2, 3, true},
+		"same birthday and first name, last name loses": {people, 3, 2, false}}
+
+	for name, value := range tData {
+		people := value.people
+		i := value.i
+		j := value.j
+		expected := value.expected
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, expected, people.Less(i, j))
+		})
 	}
-	for i, v := range data {
-		t.Run(i, func(t *testing.T) {
-			got, err := New(v.str)
-			if (err != nil) != v.ExpectedError {
-				t.Errorf("got error %v, expect %v", got, v.ExpectedError)
-			}
-			if !reflect.DeepEqual(got, v.Expect) {
-				t.Errorf("got %v, expect %v", got, v.Expect)
-			}
+}
+
+func TestPeopleSwap(t *testing.T) {
+	t.Parallel()
+
+	alica := Person{firstName: "Alica", lastName: "Sligo", birthDay: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)}
+	sienna := Person{firstName: "Sienna", lastName: "Wiedermann", birthDay: time.Date(2000, 2, 1, 0, 0, 0, 0, time.UTC)}
+	people := People{alica, sienna}
+
+	people.Swap(0, 1)
+
+	assert.Equalf(t, people[0], sienna, "sienna should be first")
+	assert.Equalf(t, people[1], alica, "alica should be second")
+}
+
+func TestMatrixNewReturnsNil(t *testing.T) {
+	t.Parallel()
+
+	tData := map[string]string{
+		"empty": "",
+		"zigzag": "0 1\n0 1 2"}
+
+	for name, value := range tData {
+		input := value
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			actual, err := New(input)
+			assert.NotNil(t, err)
+			assert.Nil(t, actual)
+		})
+	}
+}
+
+func TestMatrixNewReturnsNotNil(t *testing.T) {
+	t.Parallel()
+
+	tData := map[string]struct{
+		input string
+		rows int
+		cols int
+	}{
+		"single row": {"0 1 2 3", 1, 4},
+		"multiple rows": {"0 1 2\n3 4 5\n6 7 8", 3, 3},
+		"multiple rows with leading and trailing spaces": {" 0 1 2\n 3 4 5 \n6 7 8 ", 3, 3}} 
+
+	for name, value := range tData {
+		tCase := value
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			actual, err := New(tCase.input)
+			assert.Nil(t, err)
+			assert.NotNil(t, actual)
+			assert.NotNil(t, actual.data)
+			assert.Equal(t, tCase.rows, actual.rows)
+			assert.Equal(t, tCase.cols, actual.cols)
 		})
 	}
 }
 
 func TestMatrixRows(t *testing.T) {
-	type Fields struct {
-		Rows, Cols int
-		Data []int
-	}
-	data := map[string]struct{
-		fields Fields
-		Expect [][]int
+	t.Parallel()
+
+	tData := map[string]struct{
+		input string
+		rows [][]int
 	}{
-		"seccess": {
-			fields: Fields{
-				Rows: 4,
-				Cols: 4,
-				Data: []int{1, 2, 3, 4, 11, 22, 33, 44, 10, 20, 30 ,40, 100, 200 ,300 ,400},
-			},
-			Expect: [][]int{{1, 2, 3, 4}, {11, 22, 33, 44}, {10, 20 ,30 ,40}, {100, 200, 300, 400}},
-		},
-	}
-	for i, v := range data {
-		t.Run(i, func(t *testing.T) {
-			m := Matrix{
-				rows: v.fields.Rows,
-				cols: v.fields.Cols,
-				data: v.fields.Data,
-			}
-			if got := m.Rows(); !reflect.DeepEqual(got, v.Expect) {
-				t.Errorf("got: %v, want: %v", got, v.Expect)
-			}
+		"single row": {"0 1 2 3", [][]int{{0, 1, 2, 3}}},
+		"multiple rows": {"0 1 2\n3 4 5\n6 7 8", [][]int{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}}}} 
+
+	for name, value := range tData {
+		tCase := value
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			matrix, _ := New(tCase.input)
+			assert.Equal(t, tCase.rows, matrix.Rows())
 		})
 	}
 }
+
+
 
 func TestMatrixCols(t *testing.T) {
-	type Fields struct {
-		Rows, Cols int
-		Data []int
-	}
-	data := map[string]struct {
+	t.Parallel()
 
-		fields Fields
-		Expect [][]int  
+	tData := map[string]struct{
+		input string
+		cols [][]int
 	}{
-		"success" : {
-			fields: Fields{
-				Rows: 2, 
-				Cols: 3,
-				Data: []int{1, 2, 3, 4, 5 , 6},
-			},
-			Expect: [][]int{{1, 4}, {2, 5}, {3, 6}},
-		},
-	}
-	for i, v := range data {
-		t.Run(i, func(t *testing.T) {
-			m := Matrix{
-				rows: v.fields.Rows,
-				cols: v.fields.Cols,
-				data: v.fields.Data,
-			}
-			if got := m.Cols(); !reflect.DeepEqual(got, v.Expect) {
-				t.Errorf("got : %v, want: %v", got, v.Expect)
-			}
+		"single row": {"0 1 2 3", [][]int{{0}, {1}, {2}, {3}}},
+		"multiple rows": {"0 1 2\n3 4 5\n6 7 8", [][]int{{0, 3, 6}, {1, 4, 7}, {2, 5, 8}}}} 
+
+	for name, value := range tData {
+		tCase := value
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			matrix, _ := New(tCase.input)
+			assert.Equal(t, tCase.cols, matrix.Cols())
 		})
 	}
 }
 
-func TestSet(t *testing.T) {
-	type Fields struct {
-		Rows, Cols int
-		Data []int
-	}
+func TestMatrixSetFails(t *testing.T) {
+	t.Parallel()
 
-	type Field struct {
-		Row int
-		Col int
-		Value int
-	}
-	data := map[string]struct {
-		fields Fields
-		field Field
-		Expect bool
+	matrix, _ := New("0 1 2")
+	tData := map[string]struct{
+		row int
+		col int
 	}{
-		"valid": {
-			fields: Fields{
-				Rows: 2,
-				Cols: 2,
-				Data: []int{1, 2, 3, 4},
-			},
-			field: Field{
-				Row: 0,
-				Col: 0,
-				Value: 0,
-			},
-			Expect: true,
-		},
-		"invalid": {
-			fields: Fields{
-				Rows: 2,
-				Cols: 2,
-				Data: []int{1, 2, 3, 4},
-			},
-			field: Field{
-				Row: 2,
-				Col: 2,
-				Value: 0,
-			},
-			Expect: false,
-		},
+		"negative row": {-1, 0},
+		"row out of range": {1, 0},
+		"negative col": {0, -1},
+		"col out of range": {0, 3}}
+
+	for name, value := range tData {
+		tCase := value
+		t.Run(name, func (t *testing.T) {
+			t.Parallel()
+			assert.False(t, matrix.Set(tCase.row, tCase.col, 100))
+		})
 	}
-	for i, v := range data {
-		t.Run(i, func(t *testing.T) {
-			m := &Matrix{
-				rows: v.fields.Rows,
-				cols: v.fields.Cols,
-				data: v.fields.Data,
-			}
-			if got := m.Set(v.field.Row, v.field.Col, v.field.Value); got != v.Expect {
-				t.Errorf("got: %v, want: %v", got, v.Expect)
-			}
+}
+
+func TestMatrixSet(t *testing.T) {
+	t.Parallel()
+
+	tData := map[string]struct{
+		input string
+		row int
+		col int
+		value int
+	}{
+		"single row": {"0 1 2", 0, 1, 3},
+		"multiple rows": {"0 1 2\n3 4 5\n6 7 8", 2, 2, 9}}
+
+	for name, value := range tData {
+		tCase := value
+		t.Run(name, func (t *testing.T) {
+			t.Parallel()
+			matrix, _ := New(tCase.input)
+			assert.True(t, matrix.Set(tCase.row, tCase.col, tCase.value))
+			assert.Equal(t, tCase.value, matrix.Rows()[tCase.row][tCase.col])
 		})
 	}
 }
